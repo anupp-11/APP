@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Midnight Ops - Dark Theme (Default) */
+    --bg-primary: #0F1117;
+    --bg-secondary: #1A1D26;
+    --bg-tertiary: #252A36;
+    --border-default: #2E3442;
+    --border-focus: #4F5A6E;
+    --text-primary: #F4F4F5;
+    --text-secondary: #9CA3AF;
+    --text-muted: #6B7280;
+    
+    /* Semantic Colors */
+    --deposit-green: #22C55E;
+    --deposit-green-bg: rgba(34, 197, 94, 0.1);
+    --withdraw-red: #EF4444;
+    --withdraw-red-bg: rgba(239, 68, 68, 0.1);
+    --warning-amber: #F59E0B;
+    --warning-amber-bg: rgba(245, 158, 11, 0.1);
+    --holding-blue: #3B82F6;
+    --holding-blue-bg: rgba(59, 130, 246, 0.1);
+    --paying-purple: #A855F7;
+    --paying-purple-bg: rgba(168, 85, 247, 0.1);
+    --platform-teal: #14B8A6;
+    --platform-teal-bg: rgba(20, 184, 166, 0.1);
+    --inactive-gray: #4B5563;
+  }
+
+  .light {
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F9FAFB;
+    --bg-tertiary: #F3F4F6;
+    --border-default: #E5E7EB;
+    --border-focus: #9CA3AF;
+    --text-primary: #111827;
+    --text-secondary: #4B5563;
+    --text-muted: #9CA3AF;
+    
+    --deposit-green: #16A34A;
+    --withdraw-red: #DC2626;
+    --warning-amber: #D97706;
+    --holding-blue: #2563EB;
+    --paying-purple: #9333EA;
+    --platform-teal: #0D9488;
+    --inactive-gray: #9CA3AF;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-bg-primary text-text-primary font-sans antialiased;
+  }
+}
+
+@layer components {
+  /* Touch-friendly focus states */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-holding focus:ring-offset-2 focus:ring-offset-bg-primary;
+  }
+
+  /* Card hover effect */
+  .card-hover {
+    @apply transition-all duration-150 ease-out hover:bg-bg-tertiary hover:border-border-focus;
+  }
+
+  /* Smooth transitions */
+  .transition-base {
+    @apply transition-all duration-150 ease-out;
+  }
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-focus);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

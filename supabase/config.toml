@@ -1,0 +1,20 @@
+# Supabase CLI Configuration
+# Run these commands to set up your Supabase project
+
+# 1. Install Supabase CLI (if not installed)
+# npm install -g supabase
+
+# 2. Login to Supabase
+# supabase login
+
+# 3. Link to your project
+# supabase link --project-ref your-project-ref
+
+# 4. Apply migrations
+# supabase db push
+
+# 5. Or run locally
+# supabase start
+# supabase db reset
+[client]
+id = "chime-tracker"
