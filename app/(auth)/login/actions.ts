@@ -24,7 +24,7 @@ export async function login(prevState: { error: string } | null, formData: FormD
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
           console.log("[Login Action] Setting cookies:", cookiesToSet.length);
           try {
             cookiesToSet.forEach(({ name, value, options }) => {
