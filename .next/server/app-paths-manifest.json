@@ -1,9 +1,12 @@
 {
-  "/api/auth/logout/route": "app/api/auth/logout/route.js",
-  "/api/auth/login/route": "app/api/auth/login/route.js",
-  "/(dashboard)/history/page": "app/(dashboard)/history/page.js",
-  "/(dashboard)/quick-transaction/page": "app/(dashboard)/quick-transaction/page.js",
+  "/(auth)/login/page": "app/(auth)/login/page.js",
   "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
+  "/(dashboard)/quick-transaction/page": "app/(dashboard)/quick-transaction/page.js",
+  "/(dashboard)/credits/page": "app/(dashboard)/credits/page.js",
+  "/(dashboard)/history/page": "app/(dashboard)/history/page.js",
+  "/(dashboard)/players/page": "app/(dashboard)/players/page.js",
+  "/(dashboard)/reports/page": "app/(dashboard)/reports/page.js",
+  "/(dashboard)/accounts/page": "app/(dashboard)/accounts/page.js",
   "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
-  "/(auth)/login/page": "app/(auth)/login/page.js"
+  "/(dashboard)/platforms/page": "app/(dashboard)/platforms/page.js"
 }

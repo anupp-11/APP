@@ -16,6 +16,8 @@ import {
   ChevronRight,
   Banknote,
   BarChart3,
+  Users,
+  Coins,
 } from "lucide-react";
 
 interface NavItem {
@@ -31,6 +33,8 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/accounts", label: "Chime Accounts", icon: Wallet },
   { href: "/platforms", label: "Platforms", icon: CreditCard },
   { href: "/atm", label: "ATM Withdrawals", icon: Banknote },
+  { href: "/players", label: "Players", icon: Users },
+  { href: "/credits", label: "Credits", icon: Coins },
   { href: "/history", label: "History", icon: History },
   { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings, adminOnly: true },
