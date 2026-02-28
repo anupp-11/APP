@@ -140,18 +140,18 @@ export async function getFilterOptions(): Promise<{
   const supabase = createAdminClient();
 
   const [chimeResult, platformResult, gameResult] = await Promise.all([
-    supabase
-      .from("chime_accounts")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase.from("chime_accounts") as any)
       .select("id, nickname")
       .is("deleted_at", null)
       .order("nickname"),
-    supabase
-      .from("payment_platforms")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase.from("payment_platforms") as any)
       .select("id, name")
       .is("deleted_at", null)
       .order("name"),
-    supabase
-      .from("games")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase.from("games") as any)
       .select("id, name")
       .is("deleted_at", null)
       .order("name"),

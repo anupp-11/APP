@@ -27,8 +27,8 @@ export async function loadPaymentPlatforms(): Promise<{
 }> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("payment_platforms")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("payment_platforms") as any)
     .select("*")
     .order("name");
 
@@ -63,8 +63,8 @@ export async function createPaymentPlatform(params: {
 }): Promise<{ success: boolean; error?: string; id?: string }> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("payment_platforms")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("payment_platforms") as any)
     .insert({
       name: params.name,
       deposit_url: params.depositUrl || null,
@@ -107,8 +107,8 @@ export async function updatePaymentPlatform(params: {
   if (params.balance !== undefined) updates.balance = params.balance;
   if (params.status !== undefined) updates.status = params.status;
 
-  const { error } = await supabase
-    .from("payment_platforms")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("payment_platforms") as any)
     .update(updates)
     .eq("id", params.id);
 
@@ -130,8 +130,8 @@ export async function updatePaymentPlatform(params: {
 export async function deletePaymentPlatform(id: string): Promise<{ success: boolean; error?: string }> {
   const supabase = createAdminClient();
 
-  const { error } = await supabase
-    .from("payment_platforms")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("payment_platforms") as any)
     .update({ status: "inactive" })
     .eq("id", id);
 
@@ -153,8 +153,8 @@ export async function deletePaymentPlatform(id: string): Promise<{ success: bool
 export async function reactivatePaymentPlatform(id: string): Promise<{ success: boolean; error?: string }> {
   const supabase = createAdminClient();
 
-  const { error } = await supabase
-    .from("payment_platforms")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("payment_platforms") as any)
     .update({ status: "active" })
     .eq("id", id);
 

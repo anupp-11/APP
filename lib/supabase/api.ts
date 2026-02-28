@@ -56,7 +56,8 @@ export async function submitTransaction(params: {
 }): Promise<TransactionResponse> {
   const supabase = createClient();
 
-  const { data, error } = await supabase.rpc(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc(
     "create_transaction_with_limit_check",
     {
       p_direction: params.direction,
@@ -208,7 +209,8 @@ export async function deleteTransaction(
 ): Promise<DeleteResponse> {
   const supabase = createClient();
 
-  const { data, error } = await supabase.rpc("soft_delete_transaction", {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc("soft_delete_transaction", {
     p_transaction_id: transactionId,
   });
 
@@ -237,8 +239,8 @@ export async function fetchActiveGames(): Promise<{
 }> {
   const supabase = createClient();
 
-  const { data, error } = await supabase
-    .from("games")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("games") as any)
     .select("id, name, tag")
     .eq("status", "active")
     .is("deleted_at", null)
@@ -261,8 +263,8 @@ export async function fetchActivePlatforms(): Promise<{
 }> {
   const supabase = createClient();
 
-  const { data, error } = await supabase
-    .from("payment_platforms")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("payment_platforms") as any)
     .select("id, name, tag")
     .eq("status", "active")
     .is("deleted_at", null)
@@ -297,8 +299,8 @@ export async function fetchChimeAccountsWithTotals(): Promise<{
 }> {
   const supabase = createClient();
 
-  const { data, error } = await supabase
-    .from("chime_accounts_with_totals")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("chime_accounts_with_totals") as any)
     .select("*")
     .order("type")
     .order("nickname");

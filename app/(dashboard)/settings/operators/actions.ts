@@ -27,8 +27,8 @@ export async function loadOperators(): Promise<{
   const supabase = createAdminClient();
 
   // Get profiles with user emails
-  const { data, error } = await supabase
-    .from("profiles")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("profiles") as any)
     .select("id, user_id, name, role, created_at")
     .order("name");
 
@@ -38,7 +38,8 @@ export async function loadOperators(): Promise<{
   }
 
   // Get user emails from auth.users via admin API
-  const userIds = data.map((p) => p.user_id);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userIds = data.map((p: any) => p.user_id);
   
   // Fetch emails separately using admin client
   const { data: users, error: usersError } = await supabase.auth.admin.listUsers();
@@ -99,8 +100,8 @@ export async function createOperator(params: {
 
   // Update the auto-created profile with the correct name and role
   // (The database trigger creates profiles with default values)
-  const { data, error } = await supabase
-    .from("profiles")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("profiles") as any)
     .update({
       name: params.name,
       role: params.role,
@@ -139,8 +140,8 @@ export async function updateOperator(params: {
     if (params.name !== undefined) updates.name = params.name;
     if (params.role !== undefined) updates.role = params.role;
 
-    const { error } = await supabase
-      .from("profiles")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from("profiles") as any)
       .update(updates)
       .eq("id", params.id);
 

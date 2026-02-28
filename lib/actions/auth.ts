@@ -11,8 +11,8 @@ export async function getCurrentUserRole(): Promise<"admin" | "operator" | null>
 
   const supabase = createAdminClient();
   
-  const { data, error } = await supabase
-    .from("profiles")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("profiles") as any)
     .select("role")
     .eq("user_id", userId)
     .single();
@@ -22,5 +22,5 @@ export async function getCurrentUserRole(): Promise<"admin" | "operator" | null>
     return null;
   }
 
-  return data.role as "admin" | "operator";
+  return (data as { role: string }).role as "admin" | "operator";
 }

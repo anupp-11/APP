@@ -178,7 +178,8 @@ export async function submitTransactionAction(params: {
     };
   }
 
-  const { data, error } = await supabase.rpc("create_transaction_with_limit_check", {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc("create_transaction_with_limit_check", {
     p_direction: params.direction,
     p_amount: params.amount,
     p_source_type: params.sourceType,
@@ -214,7 +215,8 @@ export async function loadTodaySummary(): Promise<{
 }> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase.rpc("get_today_summary");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc("get_today_summary");
 
   if (error) {
     console.error("Error loading today summary:", error);
@@ -234,7 +236,8 @@ export async function loadChimeAccounts(): Promise<{
 }> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase.rpc("get_monthly_account_summary");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc("get_monthly_account_summary");
 
   if (error) {
     console.error("Error loading chime accounts:", error);
@@ -260,8 +263,8 @@ export async function updateChimeAccountLimits(params: {
 }): Promise<{ success: boolean; error?: string }> {
   const supabase = createAdminClient();
 
-  const { error } = await supabase
-    .from("chime_accounts")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("chime_accounts") as any)
     .update({
       monthly_in_limit: params.monthlyInLimit,
       monthly_out_limit: params.monthlyOutLimit,
@@ -294,8 +297,8 @@ export async function createChimeAccount(params: {
 }): Promise<{ success: boolean; id?: string; error?: string }> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("chime_accounts")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("chime_accounts") as any)
     .insert({
       nickname: params.nickname,
       type: params.type,
@@ -334,8 +337,8 @@ export async function loadPaymentPlatforms(): Promise<{
 }> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("payment_platforms")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("payment_platforms") as any)
     .select("id, name, tag, deposit_url, withdraw_url, status")
     .is("deleted_at", null)
     .order("name");
@@ -372,8 +375,8 @@ export async function updatePaymentPlatform(params: {
 }): Promise<{ success: boolean; error?: string }> {
   const supabase = createAdminClient();
 
-  const { error } = await supabase
-    .from("payment_platforms")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("payment_platforms") as any)
     .update({
       name: params.name,
       deposit_url: params.depositUrl,

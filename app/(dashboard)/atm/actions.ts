@@ -37,8 +37,8 @@ export async function getATMEnabledAccounts(): Promise<{
   const supabase = createAdminClient();
 
   // Debug: First check how many accounts exist with ATM enabled
-  const { data, error } = await supabase
-    .from("chime_accounts")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("chime_accounts") as any)
     .select("id, nickname, tag, atm_withdrawal_enabled, status, deleted_at")
     .eq("atm_withdrawal_enabled", true)
     .eq("status", "active")
@@ -53,7 +53,8 @@ export async function getATMEnabledAccounts(): Promise<{
   }
 
   return {
-    data: data.map((a) => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: data.map((a: any) => ({
       id: a.id,
       nickname: a.nickname,
       tag: a.tag,
@@ -77,8 +78,8 @@ export async function getATMWithdrawals(options?: {
 }> {
   const supabase = createAdminClient();
 
-  let query = supabase
-    .from("atm_withdrawals_with_account")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let query = (supabase.from("atm_withdrawals_with_account") as any)
     .select("*")
     .order("withdrawn_at", { ascending: false })
     .order("created_at", { ascending: false });
@@ -107,7 +108,8 @@ export async function getATMWithdrawals(options?: {
   }
 
   return {
-    data: data.map((row) => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: data.map((row: any) => ({
       id: row.id,
       chimeAccountId: row.chime_account_id,
       chimeNickname: row.chime_nickname,
@@ -155,9 +157,11 @@ export async function createATMWithdrawal(params: {
     return { success: false, error: "User profile not found" };
   }
 
+  const profileId = (profile as { id: string }).id;
+
   // Verify the chime account has ATM enabled
-  const { data: account, error: accountError } = await supabase
-    .from("chime_accounts")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: account, error: accountError } = await (supabase.from("chime_accounts") as any)
     .select("id, atm_withdrawal_enabled")
     .eq("id", params.chimeAccountId)
     .single();
@@ -170,12 +174,13 @@ export async function createATMWithdrawal(params: {
     return { success: false, error: "ATM withdrawal is not enabled for this account" };
   }
 
-  const { error } = await supabase.from("atm_withdrawals").insert({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("atm_withdrawals") as any).insert({
     chime_account_id: params.chimeAccountId,
     amount: params.amount,
     withdrawn_at: params.withdrawnAt,
     notes: params.notes?.trim() || null,
-    recorded_by: profile.id,
+    recorded_by: profileId,
   });
 
   if (error) {
@@ -212,8 +217,8 @@ export async function updateATMWithdrawal(params: {
     return { success: true };
   }
 
-  const { error } = await supabase
-    .from("atm_withdrawals")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("atm_withdrawals") as any)
     .update(updates)
     .eq("id", params.id);
 
@@ -249,11 +254,13 @@ export async function deleteATMWithdrawal(id: string): Promise<{ success: boolea
     .eq("user_id", userId)
     .single();
 
-  const { error } = await supabase
-    .from("atm_withdrawals")
+  const profileId = (profile as { id: string } | null)?.id;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("atm_withdrawals") as any)
     .update({
       deleted_at: new Date().toISOString(),
-      deleted_by: profile?.id || null,
+      deleted_by: profileId || null,
     })
     .eq("id", id);
 
@@ -283,14 +290,15 @@ export async function getATMSummaryByAccount(): Promise<{
 }> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase.rpc("get_atm_summary_by_account");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc("get_atm_summary_by_account");
 
   if (error) {
     // If RPC doesn't exist, fall back to manual query
     console.error("RPC error, using fallback:", error);
     
-    const { data: withdrawals, error: wError } = await supabase
-      .from("atm_withdrawals_with_account")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: withdrawals, error: wError } = await (supabase.from("atm_withdrawals_with_account") as any)
       .select("*");
 
     if (wError) {

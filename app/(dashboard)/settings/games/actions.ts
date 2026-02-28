@@ -25,8 +25,8 @@ export async function loadGames(): Promise<{
 }> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("games")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("games") as any)
     .select("*")
     .is("deleted_at", null)
     .order("name");
@@ -58,8 +58,8 @@ export async function createGame(params: {
 }): Promise<{ success: boolean; error?: string; id?: string }> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("games")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("games") as any)
     .insert({
       name: params.name,
       tag: params.tag.toLowerCase().replace(/\s+/g, "_"),
@@ -96,8 +96,8 @@ export async function updateGame(params: {
   if (params.tag !== undefined) updates.tag = params.tag.toLowerCase().replace(/\s+/g, "_");
   if (params.status !== undefined) updates.status = params.status;
 
-  const { error } = await supabase
-    .from("games")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("games") as any)
     .update(updates)
     .eq("id", params.id);
 
@@ -119,8 +119,8 @@ export async function updateGame(params: {
 export async function deleteGame(id: string): Promise<{ success: boolean; error?: string }> {
   const supabase = createAdminClient();
 
-  const { error } = await supabase
-    .from("games")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("games") as any)
     .update({ status: "inactive" })
     .eq("id", id);
 
@@ -142,8 +142,8 @@ export async function deleteGame(id: string): Promise<{ success: boolean; error?
 export async function reactivateGame(id: string): Promise<{ success: boolean; error?: string }> {
   const supabase = createAdminClient();
 
-  const { error } = await supabase
-    .from("games")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("games") as any)
     .update({ status: "active" })
     .eq("id", id);
 

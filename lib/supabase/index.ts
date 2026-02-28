@@ -1,5 +1,5 @@
 // Supabase module exports
 export { createClient } from "./client";
-export { createServerSupabaseClient } from "./server";
+export { createAdminClient, createAuthenticatedClient, getUserId, getSession } from "./server";
 export * from "./api";
 export * from "./database.types";

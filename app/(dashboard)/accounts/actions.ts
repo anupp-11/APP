@@ -33,8 +33,8 @@ export async function loadChimeAccounts(): Promise<{
 }> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("chime_accounts_with_totals")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("chime_accounts_with_totals") as any)
     .select("*")
     .order("nickname");
 
@@ -79,8 +79,8 @@ export async function createChimeAccount(params: {
 }): Promise<{ success: boolean; error?: string; id?: string }> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("chime_accounts")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("chime_accounts") as any)
     .insert({
       nickname: params.nickname,
       tag: params.tag || null,
@@ -135,8 +135,8 @@ export async function updateChimeAccount(params: {
   if (params.initialBalance !== undefined) updates.initial_balance = params.initialBalance;
   if (params.pin !== undefined) updates.pin = params.pin;
 
-  const { error } = await supabase
-    .from("chime_accounts")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("chime_accounts") as any)
     .update(updates)
     .eq("id", params.id);
 
@@ -158,8 +158,8 @@ export async function updateChimeAccount(params: {
 export async function deleteChimeAccount(id: string): Promise<{ success: boolean; error?: string }> {
   const supabase = createAdminClient();
 
-  const { error } = await supabase
-    .from("chime_accounts")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("chime_accounts") as any)
     .update({ status: "inactive" })
     .eq("id", id);
 
@@ -181,8 +181,8 @@ export async function deleteChimeAccount(id: string): Promise<{ success: boolean
 export async function reactivateChimeAccount(id: string): Promise<{ success: boolean; error?: string }> {
   const supabase = createAdminClient();
 
-  const { error } = await supabase
-    .from("chime_accounts")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("chime_accounts") as any)
     .update({ status: "active" })
     .eq("id", id);
 
