@@ -248,8 +248,8 @@ export async function deleteATMWithdrawal(id: string): Promise<{ success: boolea
     return { success: false, error: "Not authenticated" };
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: profile } = await (supabase.from("profiles") as any)
     .select("id")
     .eq("user_id", userId)
     .single();
