@@ -2,6 +2,10 @@ import { Header } from "@/components/layout/Header";
 import { getMonthlyReport, getAvailableMonths } from "./actions";
 import { ReportDashboard } from "./ReportDashboard";
 
+// Disable caching - always fetch fresh data
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function ReportsPage() {
   const [reportResult, monthsResult] = await Promise.all([
     getMonthlyReport(),

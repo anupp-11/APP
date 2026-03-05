@@ -38,6 +38,11 @@ export async function getMonthlyReport(year?: number, month?: number): Promise<{
   
   const startDate = startOfMonth.toISOString();
   const endDate = endOfMonth.toISOString();
+  
+  // For DATE columns (not TIMESTAMPTZ), use YYYY-MM-DD format
+  const startDateOnly = `${targetYear}-${String(targetMonth).padStart(2, "0")}-01`;
+  const endDateOnly = `${targetYear}-${String(targetMonth).padStart(2, "0")}-${String(endOfMonth.getDate()).padStart(2, "0")}`;
+  
   const monthKey = `${targetYear}-${String(targetMonth).padStart(2, "0")}`;
   
   // Format month display
@@ -74,8 +79,8 @@ export async function getMonthlyReport(year?: number, month?: number): Promise<{
     const { data: atmData, error: atmError } = await (supabase.from("atm_withdrawals") as any)
       .select("amount")
       .is("deleted_at", null)
-      .gte("withdrawn_at", startDate)
-      .lte("withdrawn_at", endDate);
+      .gte("withdrawn_at", startDateOnly)
+      .lte("withdrawn_at", endDateOnly);
     
     if (atmError) throw atmError;
     

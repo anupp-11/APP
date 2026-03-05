@@ -83,6 +83,14 @@ export function ReportDashboard({ initialReport, availableMonths }: ReportDashbo
   const [selectedMonth, setSelectedMonth] = useState(availableMonths[0]?.value || "");
   const [isPending, startTransition] = useTransition();
 
+  // Load fresh data on mount to ensure we have the latest
+  useEffect(() => {
+    if (selectedMonth) {
+      loadReport(selectedMonth);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only on mount
+
   const loadReport = (monthValue: string) => {
     const [year, month] = monthValue.split("-").map(Number);
     startTransition(async () => {
