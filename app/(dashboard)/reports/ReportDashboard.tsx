@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { formatCurrency } from "@/lib/utils";
-import { getMonthlyReport, MonthlyReport } from "./actions";
+import { getMonthlyReport, getDailyBreakdown, MonthlyReport, DailyReport } from "./actions";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -10,7 +10,8 @@ import {
   Activity,
   PiggyBank,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -80,8 +81,10 @@ export function ReportDashboard({ initialReport, availableMonths }: ReportDashbo
   };
   
   const [report, setReport] = useState(initialReport || defaultReport);
+  const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
   const [selectedMonth, setSelectedMonth] = useState(availableMonths[0]?.value || "");
   const [isPending, startTransition] = useTransition();
+  const [showDailyBreakdown, setShowDailyBreakdown] = useState(true);
 
   // Load fresh data on mount to ensure we have the latest
   useEffect(() => {
@@ -94,9 +97,15 @@ export function ReportDashboard({ initialReport, availableMonths }: ReportDashbo
   const loadReport = (monthValue: string) => {
     const [year, month] = monthValue.split("-").map(Number);
     startTransition(async () => {
-      const result = await getMonthlyReport(year, month);
-      if (result.data) {
-        setReport(result.data);
+      const [monthlyResult, dailyResult] = await Promise.all([
+        getMonthlyReport(year, month),
+        getDailyBreakdown(year, month),
+      ]);
+      if (monthlyResult.data) {
+        setReport(monthlyResult.data);
+      }
+      if (dailyResult.data) {
+        setDailyReports(dailyResult.data);
       }
     });
   };
@@ -229,6 +238,82 @@ export function ReportDashboard({ initialReport, availableMonths }: ReportDashbo
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Daily Breakdown */}
+      <div className="mt-8 bg-bg-secondary rounded-xl border border-border overflow-hidden">
+        <div className="p-4 border-b border-border flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-text-muted" />
+            <h3 className="text-lg font-semibold text-text-primary">Daily Breakdown</h3>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowDailyBreakdown(!showDailyBreakdown)}
+          >
+            {showDailyBreakdown ? "Hide" : "Show"}
+          </Button>
+        </div>
+        
+        {showDailyBreakdown && (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-bg-primary">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Date</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">Deposits</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">Withdrawals</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">ATM</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">Net Flow</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">Txns</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {dailyReports.filter(d => d.transactionCount > 0 || d.atmWithdrawals > 0).map((day) => (
+                  <tr key={day.date} className="hover:bg-bg-primary/50 transition-colors">
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-text-primary">{day.dateDisplay}</span>
+                        <span className="text-xs text-text-muted">{day.dayOfWeek}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-right">
+                      <span className={day.deposits > 0 ? "text-deposit font-medium" : "text-text-muted"}>
+                        {day.deposits > 0 ? formatCurrency(day.deposits) : "-"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-right">
+                      <span className={day.withdrawals > 0 ? "text-withdraw font-medium" : "text-text-muted"}>
+                        {day.withdrawals > 0 ? formatCurrency(day.withdrawals) : "-"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-right">
+                      <span className={day.atmWithdrawals > 0 ? "text-yellow-400 font-medium" : "text-text-muted"}>
+                        {day.atmWithdrawals > 0 ? formatCurrency(day.atmWithdrawals) : "-"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-right">
+                      <span className={`font-medium ${day.netFlow > 0 ? "text-deposit" : day.netFlow < 0 ? "text-withdraw" : "text-text-muted"}`}>
+                        {day.netFlow !== 0 ? `${day.netFlow > 0 ? "+" : ""}${formatCurrency(day.netFlow)}` : "-"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-text-muted">
+                      {day.transactionCount > 0 ? day.transactionCount : "-"}
+                    </td>
+                  </tr>
+                ))}
+                {dailyReports.filter(d => d.transactionCount > 0 || d.atmWithdrawals > 0).length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-text-muted">
+                      No transactions recorded this month
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Info Note */}

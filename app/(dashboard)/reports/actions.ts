@@ -79,8 +79,8 @@ export async function getMonthlyReport(year?: number, month?: number): Promise<{
     const { data: atmData, error: atmError } = await (supabase.from("atm_withdrawals") as any)
       .select("amount")
       .is("deleted_at", null)
-      .gte("withdrawn_at", startDateOnly)
-      .lte("withdrawn_at", endDateOnly);
+      .gte("withdrawn_at", startDate)
+      .lte("withdrawn_at", endDate);
     
     if (atmError) throw atmError;
     
@@ -214,3 +214,135 @@ export async function getAvailableMonths(): Promise<{
     return { data: [{ value: monthKey, label }], error: null };
   }
 }
+
+// ============================================
+// Types for Daily Report
+// ============================================
+
+export interface DailyReport {
+  date: string; // YYYY-MM-DD
+  dateDisplay: string; // e.g., "Mar 4"
+  dayOfWeek: string; // e.g., "Mon"
+  deposits: number;
+  withdrawals: number;
+  atmWithdrawals: number;
+  netFlow: number;
+  transactionCount: number;
+}
+
+// ============================================
+// Get Daily Breakdown for a Month
+// ============================================
+
+export async function getDailyBreakdown(year?: number, month?: number): Promise<{
+  data: DailyReport[] | null;
+  error: string | null;
+}> {
+  const supabase = createAdminClient();
+  
+  // Default to current month
+  const now = new Date();
+  const targetYear = year ?? now.getFullYear();
+  const targetMonth = month ?? now.getMonth() + 1;
+  
+  // Calculate start and end of month
+  const startOfMonth = new Date(targetYear, targetMonth - 1, 1);
+  const endOfMonth = new Date(targetYear, targetMonth, 0);
+  
+  const startDate = startOfMonth.toISOString();
+  const endDate = new Date(targetYear, targetMonth, 0, 23, 59, 59, 999).toISOString();
+  
+  // For DATE columns
+  const startDateOnly = `${targetYear}-${String(targetMonth).padStart(2, "0")}-01`;
+  const endDateOnly = `${targetYear}-${String(targetMonth).padStart(2, "0")}-${String(endOfMonth.getDate()).padStart(2, "0")}`;
+
+  try {
+    // Get all transactions for the month
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: transactions, error: txError } = await (supabase.from("transactions") as any)
+      .select("amount, direction, created_at")
+      .is("deleted_at", null)
+      .gte("created_at", startDate)
+      .lte("created_at", endDate);
+
+    if (txError) throw txError;
+
+    // Get ATM withdrawals for the month
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: atmData, error: atmError } = await (supabase.from("atm_withdrawals") as any)
+      .select("amount, withdrawn_at")
+      .is("deleted_at", null)
+      .gte("withdrawn_at", startDate)
+      .lte("withdrawn_at", endDate);
+
+    if (atmError) throw atmError;
+
+    // Build daily map
+    const dailyMap = new Map<string, DailyReport>();
+    
+    // Initialize all days of the month
+    const daysInMonth = endOfMonth.getDate();
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(targetYear, targetMonth - 1, day);
+      const dateKey = `${targetYear}-${String(targetMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      dailyMap.set(dateKey, {
+        date: dateKey,
+        dateDisplay: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        dayOfWeek: date.toLocaleDateString("en-US", { weekday: "short" }),
+        deposits: 0,
+        withdrawals: 0,
+        atmWithdrawals: 0,
+        netFlow: 0,
+        transactionCount: 0,
+      });
+    }
+
+    // Aggregate transactions by day
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const tx of (transactions || []) as any[]) {
+      const txDate = new Date(tx.created_at);
+      const dateKey = `${txDate.getFullYear()}-${String(txDate.getMonth() + 1).padStart(2, "0")}-${String(txDate.getDate()).padStart(2, "0")}`;
+      const daily = dailyMap.get(dateKey);
+      if (daily) {
+        const amount = Number(tx.amount);
+        if (tx.direction === "deposit") {
+          daily.deposits += amount;
+        } else {
+          daily.withdrawals += amount;
+        }
+        daily.transactionCount += 1;
+      }
+    }
+
+    // Aggregate ATM withdrawals by day
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const atm of (atmData || []) as any[]) {
+      // Parse the timestamp to get the date key
+      const atmDate = new Date(atm.withdrawn_at);
+      const dateKey = `${atmDate.getFullYear()}-${String(atmDate.getMonth() + 1).padStart(2, "0")}-${String(atmDate.getDate()).padStart(2, "0")}`;
+      const daily = dailyMap.get(dateKey);
+      if (daily) {
+        daily.atmWithdrawals += Number(atm.amount);
+      }
+    }
+
+    // Calculate net flow for each day
+    Array.from(dailyMap.values()).forEach((daily) => {
+      daily.netFlow = daily.deposits - daily.withdrawals;
+    });
+
+    // Convert to array sorted by date descending (most recent first)
+    const dailyReports = Array.from(dailyMap.values()).sort((a, b) => 
+      b.date.localeCompare(a.date)
+    );
+
+    return { data: dailyReports, error: null };
+  } catch (error) {
+    console.error("Error loading daily breakdown:", error);
+    return { 
+      data: null, 
+      error: error instanceof Error ? error.message : "Failed to load daily breakdown" 
+    };
+  }
+}
+

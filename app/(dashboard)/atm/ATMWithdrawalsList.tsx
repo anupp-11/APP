@@ -218,6 +218,12 @@ function WithdrawalRow({
     year: "numeric",
   });
 
+  const formattedTime = new Date(withdrawal.withdrawnAt).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
   return (
     <div className="flex items-center justify-between p-4 bg-bg-secondary border border-border rounded-lg hover:border-border-focus transition-colors">
       <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -243,8 +249,9 @@ function WithdrawalRow({
         )}
       </div>
 
-      {/* Amount & Actions */}
+      {/* Time, Amount & Actions */}
       <div className="flex items-center gap-4">
+        <span className="text-xs text-text-muted">{formattedTime}</span>
         <span className="font-mono text-lg font-bold text-withdraw">
           {formatCurrency(withdrawal.amount)}
         </span>
@@ -281,12 +288,15 @@ function WithdrawalForm({
   const [accountId, setAccountId] = React.useState(accounts[0]?.id || "");
   const [amount, setAmount] = React.useState("");
   const [date, setDate] = React.useState(new Date().toISOString().split("T")[0]);
+  const [time, setTime] = React.useState(
+    new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" })
+  );
   const [notes, setNotes] = React.useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!accountId || !amount || !date) {
+    if (!accountId || !amount || !date || !time) {
       error("Validation Error", "Please fill in all required fields");
       return;
     }
@@ -297,11 +307,14 @@ function WithdrawalForm({
       return;
     }
 
+    // Combine date and time into ISO string
+    const withdrawnAt = new Date(`${date}T${time}:00`).toISOString();
+
     startTransition(async () => {
       const result = await createATMWithdrawal({
         chimeAccountId: accountId,
         amount: parsedAmount,
-        withdrawnAt: date,
+        withdrawnAt,
         notes: notes.trim() || undefined,
       });
 
@@ -316,7 +329,7 @@ function WithdrawalForm({
           chimeNickname: selectedAccount?.nickname || "",
           chimeTag: selectedAccount?.tag || null,
           amount: parsedAmount,
-          withdrawnAt: date,
+          withdrawnAt,
           notes: notes.trim() || null,
           recordedBy: "",
           recordedByName: null,
@@ -390,6 +403,18 @@ function WithdrawalForm({
               value={date}
               onChange={(e) => setDate(e.target.value)}
               max={new Date().toISOString().split("T")[0]}
+            />
+          </div>
+
+          {/* Time */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary">
+              Time <span className="text-withdraw">*</span>
+            </label>
+            <Input
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
             />
           </div>
 
